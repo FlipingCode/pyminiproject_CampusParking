@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Parking Slots · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Parking Slots</h1>
+{% for g in grouped %}
+<h2>{{ g.area.name }}</h2>
+<div class="slots">
+  {% for item in g.slots %}
+  <div class="slot {{ item.slot.status }}"
+       {% if item.vehicle %}title="{{ item.vehicle.vehicle_number }} · {{ item.vehicle.vehicle_type }} · {{ item.vehicle.person_name }} · since {{ item.vehicle.entry_time }}"{% endif %}>
+    <b>{{ item.slot.slot_number }}</b>
+    <span>{{ item.slot.status }}</span>
+    {% if item.vehicle %}<small>{{ item.vehicle.vehicle_number }}</small>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+<p class="muted">Hover / tap an occupied slot to see vehicle info.</p>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Parking History · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Parking History (Completed)</h1>
+<form method="GET" class="form inline-form">
+  <input name="search" placeholder="Vehicle number..." value="{{ search }}">
+  <select name="vehicle_type">
+    <option value="">All types</option>
+    {% for t in vehicle_types %}
+    <option {% if vtype==t %}selected{% endif %}>{{ t }}</option>
+    {% endfor %}
+  </select>
+  <select name="area_id">
+    <option value="">All areas</option>
+    {% for a in areas %}
+    <option value="{{ a.id }}" {% if area_id==a.id|string %}selected{% endif %}>{{ a.name }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Filter</button>
+  <a class="btn" href="{{ url_for('history') }}">Reset</a>
+</form>
+
+<table>
+  <tr><th>Vehicle</th><th>Type</th><th>Person</th><th>Area</th><th>Slot</th><th>Entry</th><th>Exit</th><th>Status</th></tr>
+  {% for r in records %}
+  <tr>
+    <td>{{ r.vehicle_number }}</td>
+    <td>{{ r.vehicle_type }}</td>
+    <td>{{ r.person_type }}</td>
+    <td>{{ r.area_name }}</td>
+    <td>{{ r.slot_number }}</td>
+    <td>{{ r.entry_time }}</td>
+    <td>{{ r.exit_time }}</td>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8">No completed records found.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

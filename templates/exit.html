@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Exit · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Vehicle Exit</h1>
+<form method="GET" class="form inline-form">
+  <input name="search" placeholder="Search vehicle number..." value="{{ search }}">
+  <button type="submit">Search</button>
+  {% if search %}<a class="btn" href="{{ url_for('exit_vehicle') }}">Clear</a>{% endif %}
+</form>
+
+<table>
+  <tr><th>Vehicle</th><th>Type</th><th>Name</th><th>Area</th><th>Slot</th><th>Entry Time</th><th>Action</th></tr>
+  {% for v in active %}
+  <tr>
+    <td>{{ v.vehicle_number }}</td>
+    <td>{{ v.vehicle_type }}</td>
+    <td>{{ v.person_name }}</td>
+    <td>{{ v.area_name }}</td>
+    <td>{{ v.slot_number }}</td>
+    <td>{{ v.entry_time }}</td>
+    <td>
+      <form method="POST" style="display:inline">
+        <input type="hidden" name="record_id" value="{{ v.id }}">
+        <button type="submit" onclick="return confirm('Mark exit for {{ v.vehicle_number }}?')">Mark Exit</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7">No active vehicles found.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

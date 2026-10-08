@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Vehicle Entry · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Vehicle Entry</h1>
+<form method="POST" class="form" id="entryForm">
+  <label>Vehicle Number<input name="vehicle_number" placeholder="e.g. MH12AB1234" required></label>
+  <label>Vehicle Type
+    <select name="vehicle_type" required>
+      <option value="">-- Select --</option>
+      {% for t in vehicle_types %}<option>{{ t }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Person Type
+    <select name="person_type" required>
+      <option value="">-- Select --</option>
+      {% for t in person_types %}<option>{{ t }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Person Name<input name="person_name" required></label>
+  <label>Parking Area
+    <select name="area_id" id="areaSelect" required>
+      <option value="">-- Select Area --</option>
+      {% for a in areas %}<option value="{{ a.id }}">{{ a.name }} ({{ a.capacity }})</option>{% endfor %}
+    </select>
+  </label>
+  <label>Parking Slot
+    <select name="slot_id" id="slotSelect" required>
+      <option value="">-- Select Area First --</option>
+    </select>
+  </label>
+  <button type="submit">Park Vehicle</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+// Load available slots when area changes
+document.getElementById('areaSelect').addEventListener('change', async (e) => {
+  const slotSel = document.getElementById('slotSelect');
+  slotSel.innerHTML = '<option>Loading...</option>';
+  const res = await fetch('/api/available_slots?area_id=' + e.target.value);
+  const slots = await res.json();
+  slotSel.innerHTML = slots.length
+    ? '<option value="">-- Select Slot --</option>' + slots.map(s => `<option value="${s.id}">${s.slot_number}</option>`).join('')
+    : '<option value="">No free slots in this area</option>';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Parking Areas · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Parking Areas</h1>
+<div class="cards">
+  {% for a in areas %}
+  <div class="card area-card">
+    <h3>{{ a.name }}</h3>
+    <p>Capacity: <b>{{ a.capacity }}</b></p>
+    <p>Occupied: <b>{{ a.occupied }}</b> · Available: <b>{{ a.available }}</b></p>
+    <div class="progress"><div class="progress-fill" style="width: {{ a.occupancy }}%"></div></div>
+    <small>{{ a.occupancy }}% occupied</small>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

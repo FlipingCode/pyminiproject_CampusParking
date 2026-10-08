@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Campus Parking Tracker{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p class="muted">Live campus parking overview (auto-refreshes every 5 seconds)</p>
+
+<div class="cards">
+  <div class="card"><h3>Total Spaces</h3><p class="big" id="stat-total">{{ stats.total }}</p></div>
+  <div class="card occupied"><h3>Occupied</h3><p class="big" id="stat-occupied">{{ stats.occupied }}</p></div>
+  <div class="card available"><h3>Available</h3><p class="big" id="stat-available">{{ stats.available }}</p></div>
+  <div class="card"><h3>Occupancy</h3><p class="big" id="stat-occupancy">{{ stats.occupancy_percentage }}%</p></div>
+</div>
+
+<h2>Parking Areas</h2>
+<div class="cards">
+  {% for a in areas %}
+  <div class="card area-card">
+    <h3>{{ a.name }}</h3>
+    <p>Capacity: {{ a.capacity }} · Occupied: {{ a.occupied }} · Available: {{ a.available }}</p>
+    <div class="progress"><div class="progress-fill" style="width: {{ a.occupancy }}%"></div></div>
+    <small>{{ a.occupancy }}% full</small>
+  </div>
+  {% endfor %}
+</div>
+
+<h2>Occupancy Chart</h2>
+<div class="card chart-card"><canvas id="occupancyChart"></canvas></div>
+
+<h2>Recent Activity</h2>
+<table>
+  <tr><th>Vehicle</th><th>Type</th><th>Area</th><th>Slot</th><th>Entry</th><th>Status</th></tr>
+  {% for r in recent %}
+  <tr>
+    <td>{{ r.vehicle_number }}</td>
+    <td>{{ r.vehicle_type }}</td>
+    <td>{{ r.area_name }}</td>
+    <td>{{ r.slot_number }}</td>
+    <td>{{ r.entry_time }}</td>
+    <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="6">No activity yet.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Chart.js doughnut + 5s polling for live stats
+const ctx = document.getElementById('occupancyChart');
+const chart = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Occupied', 'Available'],
+    datasets: [{ data: [{{ stats.occupied }}, {{ stats.available }}] }]
+  }
+});
+async function refreshStats() {
+  try {
+    const res = await fetch('/api/dashboard');
+    const d = await res.json();
+    document.getElementById('stat-total').textContent = d.total;
+    document.getElementById('stat-occupied').textContent = d.occupied;
+    document.getElementById('stat-available').textContent = d.available;
+    document.getElementById('stat-occupancy').textContent = d.occupancy_percentage + '%';
+    chart.data.datasets[0].data = [d.occupied, d.available];
+    chart.update();
+  } catch (e) { console.error('polling failed', e); }
+}
+setInterval(refreshStats, 5000);
+</script>
+{% endblock %}
